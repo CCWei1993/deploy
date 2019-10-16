@@ -5,7 +5,9 @@ mkdir ~/workspace
 cd ~/workspace
 sudo docker-compose up -d
 
-sudo docker swarm init --advertise-addr 192.168.211.135
+ip=`ip addr | grep 'ens33' | grep 'inet' | cut -d' ' -f 6 | cut -d / -f 1`
+
+sudo docker swarm init --advertise-addr $ip
 
 sudo docker network create --driver overlay --attachable kafka-net
 
