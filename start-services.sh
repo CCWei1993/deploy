@@ -1,6 +1,7 @@
 #!/bin/bash
+mkdir ~/workspace
 cd ~/workspace
-docker-compose up -d
+sudo docker-compose up -d
 sudo firewall-cmd --zone=public --add-port=2377/udp --permanent
 sudo firewall-cmd --zone=public --add-port=7946/udp --permanent
 sudo firewall-cmd --zone=public --add-port=2181/udp --permanent
@@ -18,3 +19,4 @@ sudo docker swarm init --advertise-addr $ip
 sudo docker network create --driver overlay --attachable kafka-net
 sudo docker stack deploy -c docker-compose-swarm.yml kafka
 sudo docker service update --network-add kafka-net kafka_kafka
+sudo docker network connect kafka-net jupyter
