@@ -1,0 +1,2 @@
+# deploy
+cp ./jupyter ~/workspace 
