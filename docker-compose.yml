@@ -26,13 +26,16 @@ services:
     container_name: jupyter
     hostname: jupyter
     ports:
+      - "5000:5000"
       - "8889:8888"
     command: start-notebook.sh --NotebookApp.token=''
+    networks:
+      - chatbot-net
     volumes:
       - ./jupyter:/home/jovyan/work
 
   pyspark:
-    image: orozcohsu/pyspark_mongo_ltu:v3  
+    image: orozcohsu/pyspark_mongo_ltu:v3
     container_name: pyspark
     hostname: pyspark
     ports:
@@ -55,4 +58,15 @@ services:
     volumes:
       - ./mysql_db/mysql_data:/var/lib/mysql
       - ./mysql_db/mysql_init:/docker-entrypoint-initdb.d/
-      
+
+  serveo:
+    image: aeon33system/serveo-alpine:v1
+    container_name: chatbot_serveo
+    tty: true
+    stdin_open: true
+    networks:
+      - chatbot-net
+    command: autossh -M 0 -R chatbottest.serveo.net:80:jupyter:5000 -o StrictHostKeyChecking=no serveo.net
+
+networks:
+  chatbot-net:
