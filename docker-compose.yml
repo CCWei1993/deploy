@@ -22,29 +22,19 @@ services:
       - HOST=0.0.0.0
 
   jupyter:
-    image: ccwei1993/jupyter
+    build:
+      context: ./dockerfile
+      dockerfile: dockerfile-jupyter
     container_name: jupyter
+    tty : true
+    stdin_open: true
     hostname: jupyter
     ports:
       - "5000:5000"
       - "8889:8888"
     command: start-notebook.sh --NotebookApp.token=''
-    networks:
-      - chatbot-net
     volumes:
       - ./jupyter:/home/jovyan/work
-
-  pyspark:
-    image: orozcohsu/pyspark_mongo_ltu:v3
-    container_name: pyspark
-    hostname: pyspark
-    ports:
-      - "8890:8888"
-      - "4040:4040"
-      - "4041:4041"
-    command: start-notebook.sh --NotebookApp.token=''
-    volumes:
-      - ./pyspark:/pyspark
 
   mysql:
     image: mysql:8.0
@@ -53,20 +43,21 @@ services:
     ports:
       - "3307:3306"
     environment:
-      - MYSQL_DATABASE:test
-      - MYSQL_ROOT_PASSWORD:iii
+      MYSQL_DATABASE: test
+      MYSQL_ROOT_PASSWORD: iii
     volumes:
       - ./mysql_db/mysql_data:/var/lib/mysql
       - ./mysql_db/mysql_init:/docker-entrypoint-initdb.d/
 
   serveo:
-    image: aeon33system/serveo-alpine:v1
+    build:
+      context: ./dockerfile
+      dockerfile: dockerfile-serveo
     container_name: chatbot_serveo
     tty: true
     stdin_open: true
-    networks:
-      - chatbot-net
-    command: autossh -M 0 -R chatbottest.serveo.net:80:jupyter:5000 -o StrictHostKeyChecking=no serveo.net
-
-networks:
-  chatbot-net:
+    depends_on:
+      - jupyter
+    ports:
+      - "4042:4042"
+    command: autossh -M 0 -R colafishx.serveo.net:80:jupyter:5000 -o StrictHostKeyChecking=no serveo.net
